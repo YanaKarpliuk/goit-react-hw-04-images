@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styling from './contactList.module.css';
 
 export default class ContactList extends Component {
   render() {

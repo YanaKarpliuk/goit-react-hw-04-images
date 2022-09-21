@@ -4,7 +4,6 @@ import ContactForm from './ContactForm/ContactForm';
 import Filter from './Filter/Filter';
 import ContactList from './ContactList/ContactList';
 import ContactListItem from './ContactListItem/ContactListItem';
-import { isContentEditable } from '@testing-library/user-event/dist/utils';
 export default class App extends Component {
   static defaultProps = {};
 
