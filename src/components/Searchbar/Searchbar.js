@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import styleSearchbar from './searchbar.module.css';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
 export default class Searchbar extends Component {
   state = {
@@ -13,19 +13,21 @@ export default class Searchbar extends Component {
     });
   };
 
+  checkOnSubmit = e => {
+    e.preventDefault();
+    if (this.state.inputValue.length === 0) {
+      alert('Please enter the search query');
+    } else {
+      this.props.onSubmit(this.state.inputValue);
+    }
+  };
+
   render() {
     return (
       <header className={styleSearchbar.searchbar}>
         <form
           className={styleSearchbar.searchForm}
-          onSubmit={e => {
-            e.preventDefault();
-            if (this.state.inputValue.length === 0) {
-              alert('Please enter the search query');
-            } else {
-              this.props.onSubmit(this.state.inputValue);
-            }
-          }}
+          onSubmit={this.checkOnSubmit}
         >
           <button type="submit" className={styleSearchbar.searchForm_button}>
             <span className={styleSearchbar.searchForm_button_label}>
@@ -48,5 +50,5 @@ export default class Searchbar extends Component {
 }
 
 Searchbar.propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-}
+  onSubmit: PropTypes.func.isRequired,
+};
