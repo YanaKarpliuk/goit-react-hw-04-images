@@ -1,19 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import axios from 'axios';
 import styleApp from './app.module.css';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
-import Loader from './Loader/Loader'
+import Loader from './Loader/Loader';
 
 axios.defaults.baseURL = `https://pixabay.com/api/`;
 
-export default class App extends Component {
-  static defaultProps = {};
-
-  static propTypes = {};
-
-  state = {
+export default function App() {
+  const [imgData, setImgData] = useState({
     page: 1,
     query: '',
     items: [],
@@ -21,32 +17,33 @@ export default class App extends Component {
     error: '',
     isLoading: false,
     total: null,
-  };
+  });
 
-  onSubmit = query => {
-    this.setState(
-      {
+  const onSubmit = query => {
+    setImgData(prev => {
+      return {
+        ...prev,
         query,
         page: 1,
         items: [],
-      },
-      () => this.loadImages()
-    );
+      };
+    });
+
+    loadImages(query, 1);
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.page !== this.state.page) {
-      this.loadImages();
-    }
-  }
-
-  loadImages = () => {
-    this.setState({ isLoading: true });
+  const loadImages = (query, page) => {
+    setImgData(prev => {
+      return {
+        ...prev,
+        isLoading: true,
+      };
+    });
     axios
       .get('', {
         params: {
-          q: this.state.query,
-          page: this.state.page,
+          q: query,
+          page: page,
           key: '30253708-47d627da2430a20cd80650fc3',
           image_type: 'photo',
           orientation: 'horizontal',
@@ -54,41 +51,46 @@ export default class App extends Component {
         },
       })
       .then(response => {
-        this.setState(prev => ({
+        setImgData(prev => ({
+          ...prev,
           total: response.data.total,
           items: [...prev.items, ...response.data.hits],
           error: '',
         }));
       })
       .catch(error =>
-        this.setState({ error: 'Error while loading data. Try again later' })
+        setImgData({ error: 'Error while loading data. Try again later' })
       )
       .finally(() => {
-        this.setState({ isLoading: false });
+        setImgData(prev => {
+          return {
+            ...prev,
+            isLoading: false,
+          };
+        });
       });
   };
 
-  onLoadMoreButton = () => {
-    this.setState(prev => ({
-      page: prev.page + 1,
-    }));
+  const onLoadMoreButton = () => {
+    loadImages(imgData.query, imgData.page + 1);
+    setImgData(prev => {
+      return { ...prev, page: prev.page + 1 };
+    });
   };
 
-  render() {
-    return (
-      <div className={styleApp.App}>
-        <Searchbar onSubmit={this.onSubmit} />
-        <ImageGallery items={this.state.items} />
-        {this.state.isLoading ? (
-          <Loader />
-        ) : (
-          <Button
-            onClick={this.onLoadMoreButton}
-            items={this.state.items}
-            total={this.state.total}
-          />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className={styleApp.App}>
+      <Searchbar onSubmit={onSubmit} />
+      <ImageGallery items={imgData.items} />
+      {imgData.isLoading ? (
+        <Loader />
+      ) : (
+        <Button
+          onClick={onLoadMoreButton}
+          items={imgData.items}
+          total={imgData.total}
+        />
+      )}
+    </div>
+  );
 }

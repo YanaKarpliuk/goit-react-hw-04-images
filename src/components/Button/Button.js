@@ -1,28 +1,25 @@
-import { Component } from 'react';
 import styleBtn from './button.module.css';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
-export default class Button extends Component {
-  displayBtn = () => {
-    if (this.props.items.length === 0) {
+export default function Button(props) {
+  const displayBtn = () => {
+    if (props.items.length === 0) {
       return <p className={styleBtn.info}>No content to display</p>;
-    } else if (this.props.items.length === this.props.total) {
+    } else if (props.items.length === props.total) {
       return <p className={styleBtn.info}>You've all caught up!</p>;
     } else {
       return (
-        <button className={styleBtn.button} onClick={this.props.onClick}>
+        <button className={styleBtn.button} onClick={props.onClick}>
           Load more
         </button>
       );
     }
   };
-  render() {
-    return this.displayBtn();
-  }
+  return displayBtn();
 }
 
 Button.propTypes = {
   onClick: PropTypes.func.isRequired,
   items: PropTypes.array,
-  total: PropTypes.number
-}
+  total: PropTypes.number,
+};
