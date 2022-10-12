@@ -9,36 +9,34 @@ import Loader from './Loader/Loader';
 axios.defaults.baseURL = `https://pixabay.com/api/`;
 
 export default function App() {
-  const [imgData, setImgData] = useState({
-    page: 1,
-    query: '',
-    items: [],
-    currentLargeImageURL: '',
-    error: '',
-    isLoading: false,
-    total: null,
-  });
+  // const [imgData, setImgData] = useState({
+  //   page: 1,
+  //   query: '',
+  //   items: [],
+  //   currentLargeImageURL: '',
+  //   error: '',
+  //   isLoading: false,
+  //   total: null,
+  // });
+
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [items, setItems] = useState([]);
+  const [currentLargeImageURL, setCurrentLargeImageURL] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [total, setTotal] = useState(null);
 
   const onSubmit = query => {
-    setImgData(prev => {
-      return {
-        ...prev,
-        query,
-        page: 1,
-        items: [],
-      };
-    });
+    setQuery(query);
+    setPage(1);
+    setItems([]);
 
     loadImages(query, 1);
   };
 
   const loadImages = (query, page) => {
-    setImgData(prev => {
-      return {
-        ...prev,
-        isLoading: true,
-      };
-    });
+    setIsLoading(true);
     axios
       .get('', {
         params: {
@@ -51,45 +49,29 @@ export default function App() {
         },
       })
       .then(response => {
-        setImgData(prev => ({
-          ...prev,
-          total: response.data.total,
-          items: [...prev.items, ...response.data.hits],
-          error: '',
-        }));
+        setTotal(response.data.total);
+        setItems(prev => [...prev, ...response.data.hits]);
+        setError('');
       })
-      .catch(error =>
-        setImgData({ error: 'Error while loading data. Try again later' })
-      )
+      .catch(error => setError('Error while loading data. Try again later'))
       .finally(() => {
-        setImgData(prev => {
-          return {
-            ...prev,
-            isLoading: false,
-          };
-        });
+        setIsLoading(false);
       });
   };
 
   const onLoadMoreButton = () => {
-    loadImages(imgData.query, imgData.page + 1);
-    setImgData(prev => {
-      return { ...prev, page: prev.page + 1 };
-    });
+    loadImages(query, page + 1);
+    setPage(prev => prev + 1);
   };
 
   return (
     <div className={styleApp.App}>
       <Searchbar onSubmit={onSubmit} />
-      <ImageGallery items={imgData.items} />
-      {imgData.isLoading ? (
+      <ImageGallery items={items} />
+      {isLoading ? (
         <Loader />
       ) : (
-        <Button
-          onClick={onLoadMoreButton}
-          items={imgData.items}
-          total={imgData.total}
-        />
+        <Button onClick={onLoadMoreButton} items={items} total={total} />
       )}
     </div>
   );
